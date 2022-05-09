@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="login">
     <el-form
       :model="ruleForm"
       status-icon
@@ -8,22 +8,30 @@
       label-width="100px"
       class="demo-ruleForm"
     >
-      <el-form-item label="密码" prop="pass">
+      <el-form-item label="" prop="user">
+        <el-input v-model="ruleForm.user">
+          <i slot="prefix" class="el-input__icon el-icon-login-user"></i>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="" prop="pass">
         <el-input
           type="password"
           v-model="ruleForm.pass"
           autocomplete="off"
         ></el-input>
       </el-form-item>
-      <el-form-item label="确认密码" prop="checkPass">
+      <el-form-item label="" prop="checkPass">
         <el-input
           type="password"
           v-model="ruleForm.checkPass"
           autocomplete="off"
         ></el-input>
       </el-form-item>
-      <el-form-item label="年龄" prop="age">
-        <el-input v-model.number="ruleForm.age"></el-input>
+      <el-form-item label="">
+        <div class="re-for">
+          <div>立即注册</div>
+          <div>忘记密码</div>
+        </div>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="submitForm('ruleForm')"
@@ -36,25 +44,21 @@
 </template>
 
 <script>
+import * as loginApi from "@/api/login";
 export default {
-  name: "HelloWorld",
   props: {
     msg: String,
   },
   data() {
-    var checkAge = (rule, value, callback) => {
+    var checkUser = (rule, value, callback) => {
       if (!value) {
         return callback(new Error("年龄不能为空"));
       }
       setTimeout(() => {
-        if (!Number.isInteger(value)) {
-          callback(new Error("请输入数字值"));
+        if (value < 18) {
+          callback(new Error("必须年满18岁"));
         } else {
-          if (value < 18) {
-            callback(new Error("必须年满18岁"));
-          } else {
-            callback();
-          }
+          callback();
         }
       }, 1000);
     };
@@ -79,14 +83,14 @@ export default {
     };
     return {
       ruleForm: {
+        user: "",
         pass: "",
         checkPass: "",
-        age: "",
       },
       rules: {
         pass: [{ validator: validatePass, trigger: "blur" }],
         checkPass: [{ validator: validatePass2, trigger: "blur" }],
-        age: [{ validator: checkAge, trigger: "blur" }],
+        user: [{ validator: checkUser, trigger: "blur" }],
       },
     };
   },
@@ -94,7 +98,7 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert("submit!");
+          this.doSubmit();
         } else {
           console.log("error submit!!");
           return false;
@@ -104,24 +108,30 @@ export default {
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
+
+    doSubmit() {
+      loginApi.login({}).then(() => {});
+    },
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="less">
-h3 {
-  margin: 40px 0 0;
+/deep/ .el-input__prefix {
+  padding-right: 4px;
+  border-right: 1px solid #dcdfe6;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.el-icon-login-user {
+  background: url(../assets/zan.png) center no-repeat;
+  background-size: 24px 26px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+/deep/ .el-input--prefix .el-input__inner {
+  padding-left: 40px;
 }
-a {
-  color: #42b983;
+.re-for {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
